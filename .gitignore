@@ -1,0 +1,13 @@
+.build
+blib
+*META.yml
+ppport.h
+*~
+*.bak
+*.swp
+*.tdy
+*.tar.gz
+List-DoubleLinked-*
+*.c
+*.o
+SIGNATURE
