@@ -11,6 +11,7 @@ sub new {
 	my ($class, $list, $node) = @_;
 	my $self = bless [ $node, $list ], $class;
 	weaken $self->[0];
+	Internals::SvREADONLY(@$self, 1);
 	return $self;
 }
 
@@ -63,3 +64,29 @@ sub insert_after {
 # ABSTRACT: Double Linked List Iterators
 
 1;
+
+=method get()
+
+Get the value of the iterator
+
+=method next()
+
+Get the next iterator, this does not change the iterator itself.
+
+=method previous()
+
+Get the previous iterator, this does not change the iterator.
+
+=method remove()
+
+Remove the element from the list. This invalidates the iterator.
+
+=method insert_before(@elements)
+
+Insert @elements before the current iterator
+
+=method insert_after
+
+Insert @elements after the current iterator
+
+=for Pod::Coverage new

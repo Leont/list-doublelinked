@@ -13,7 +13,7 @@ sub new {
 		head => undef,
 		tail => undef,
 	}, $class;
-	$self->unshift(@items);
+	$self->push(@items);
 	return $self;
 }
 
@@ -177,3 +177,75 @@ sub DESTROY {
 # ABSTRACT: Double Linked Lists for Perl
 
 1;
+
+=head1 SYNOPSIS
+
+ use List::DoubleLinked;
+ my $list = List::DoubleLinked->new(qw/foo bar baz/);
+ $list->begin->insert_after(qw/quz/);
+ $list->end->previous->erase;
+
+=head1 DESCRIPTION
+
+This module provides a double linked list for Perl. You should ordinarily use arrays instead of this, they are faster for almost any usage. However there is a small set of use-cases where linked lists are necessary. This module was written in particular to offer stable iterators (iterators that will remain valid even if other elements are added or removed anywhere in the list).
+
+=method new(@elements)
+
+Create a new double linked list. @elements is pushed to the list.
+
+=method flatten()
+
+Return an array containing the same values as the list does. This runs in linear time.
+
+=method push(@elements)
+
+Add @elements to the end of the list.
+
+=method pop()
+
+Remove an element from the end of the list and return it
+
+=method unshift(@elements)
+
+Add @elements to the start of the list.
+
+=method shift()
+
+Remove an element from the end of the list and return it
+
+=method front()
+
+Return the first element in the list
+
+=method back()
+
+Return the last element in the list.
+
+=method empty()
+
+Returns true if the list has no elements in it, returns false otherwise.
+
+=method size()
+
+Return the length of the list. This runs in linear time.
+
+=method begin()
+
+Return an iterator to the first element of the list.
+
+=method end()
+
+Return an iterator to the last element of the list.
+
+=method erase($iterator)
+
+Remove the element under $iterator.
+
+=method insert_before($iterator, @elements)
+
+Insert @elements before $iterator.
+
+=method insert_after($iterator, @elements)
+
+Insert @elements after $iterator.
+
