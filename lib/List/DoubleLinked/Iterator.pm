@@ -5,13 +5,13 @@ use warnings FATAL => 'all';
 
 use Carp qw/croak/;
 use Scalar::Util 'weaken';
-use namespace::clean;
+use namespace::clean 0.20;
 
 sub new {
 	my ($class, $list, $node) = @_;
 	my $self = bless [ $node, $list ], $class;
 	weaken $self->[0];
-	Internals::SvREADONLY(@$self, 1);
+	Internals::SvREADONLY(@{$self}, 1);
 	return $self;
 }
 

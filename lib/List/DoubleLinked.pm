@@ -5,7 +5,7 @@ use warnings FATAL => 'all';
 
 use Carp qw/carp/;
 use Scalar::Util 'weaken';
-use namespace::clean;
+use namespace::clean 0.20;
 
 sub new {
 	my ($class, @items) = @_;
