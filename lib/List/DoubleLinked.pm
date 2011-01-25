@@ -194,11 +194,25 @@ sub DESTROY {
 
 =head1 DESCRIPTION
 
-This module provides a double linked list for Perl. You should ordinarily use arrays instead of this, they are faster for almost any usage. However there is a small set of use-cases where linked lists are necessary. This module was written in particular to offer stable iterators (iterators that will remain valid even if other elements are added or removed anywhere in the list).
+This module provides a double linked list for Perl. You should ordinarily use arrays instead of this, they are faster for almost any usage. However there is a small set of use-cases where linked lists are necessary. While you can use the list as an object directly, for most purposes it's recommended to use iterators. C<begin()> and C<end()> will give you iterators pointing at the start and end of the list.
+
+=head1 WTF WHERE YOU THINKING?
+
+This module is a bit an exercise in C programming. I was surprised that I was ever going to need this (and even more surprised no one ever uploaded something like this to CPAN before), but I do. B<I need a data structure that provided me with stable iterators>. I need to be able to splice off any arbitrary element without affecting any other arbitrary element. You can't really implement that using arrays, you need a double linked list for that.
+
+This module is optimized for correctness, both algorithmically as memory wise. It is not optimized for speed. Linked lists in Perl are practically never faster than arrays anyways, so if you're looking at this because you think it will be faster think again. L<splice|perlfunc/"splice"> is your friend.
 
 =method new(@elements)
 
 Create a new double linked list. @elements is pushed to the list.
+
+=method begin()
+
+Return an L<iterator|List::Double::Linked::Iterator> to the first element of the list.
+
+=method end()
+
+Return an L<iterator|List::Double::Linked::Iterator> to the last element of the list.
 
 =method flatten()
 
@@ -235,14 +249,6 @@ Returns true if the list has no elements in it, returns false otherwise.
 =method size()
 
 Return the length of the list. This runs in linear time.
-
-=method begin()
-
-Return an iterator to the first element of the list.
-
-=method end()
-
-Return an iterator to the last element of the list.
 
 =method erase($iterator)
 
