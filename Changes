@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.003     2011-01-25 15:38:59 Europe/Amsterdam
           Made size() O(1) instead of O(N)
 
 0.002     2011-01-17 02:49:24 Europe/Amsterdam
