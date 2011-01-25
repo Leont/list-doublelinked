@@ -6,6 +6,7 @@ use warnings FATAL => 'all';
 use Carp qw/carp/;
 use Scalar::Util 'weaken';
 use namespace::clean 0.20;
+#no autovivication;
 
 sub new {
 	my ($class, @items) = @_;
@@ -27,7 +28,7 @@ sub push {
 			prev => $self->{tail},
 			next => undef,
 		};
-		$self->{tail}{next} = $new_tail if $self->{tail};
+		$self->{tail}{next} = $new_tail if defined $self->{tail};
 		$self->{tail}       = $new_tail;
 		$self->{head}       = $new_tail if not defined $self->{head};
 	}
@@ -39,7 +40,7 @@ sub pop {
 	my $ret  = $self->{tail};
 	return if not defined $ret;
 	$self->{tail} = $ret->{prev};
-	$self->{tail}{next} = undef if $self->{tail};
+	$self->{tail}{next} = undef if defined $self->{tail};
 	return $ret->{item};
 }
 
@@ -51,7 +52,7 @@ sub unshift {
 			prev => undef,
 			next => $self->{head},
 		};
-		$self->{head}{prev} = $new_head if $self->{head};
+		$self->{head}{prev} = $new_head if defined $self->{head};
 		$self->{head}       = $new_head;
 		$self->{tail}       = $new_head if not defined $self->{tail};
 	}
@@ -63,14 +64,14 @@ sub shift {
 	my $ret  = $self->{head};
 	return if not defined $ret;
 	$self->{head} = $ret->{next};
-	$self->{head}{prev} = undef if $self->{tail};
+	$self->{head}{prev} = undef if defined $self->{tail};
 	return $ret->{item};
 }
 
 sub flatten {
 	my $self = CORE::shift;
 	my @ret;
-	for (my $current = $self->{head} ; $current ; $current = $current->{next}) {
+	for (my $current = $self->{head} ; defined $current ; $current = $current->{next}) {
 		CORE::push @ret, $current->{item};
 	}
 	return @ret;
@@ -78,12 +79,12 @@ sub flatten {
 
 sub front {
 	my $self = CORE::shift;
-	return $self->{head} ? $self->{head}{item} : undef;
+	return defined $self->{head} ? $self->{head}{item} : undef;
 }
 
 sub back {
 	my $self = CORE::shift;
-	return $self->{tail} ? $self->{tail}{item} : undef;
+	return defined $self->{tail} ? $self->{tail}{item} : undef;
 }
 
 sub empty {
@@ -94,7 +95,7 @@ sub empty {
 sub size {
 	my $self = CORE::shift;
 	my $ret  = 0;
-	for (my $current = $self->{head} ; $current ; $current = $current->{next}) {
+	for (my $current = $self->{head} ; defined $current ; $current = $current->{next}) {
 		$ret++;
 	}
 	return $ret;
@@ -109,10 +110,10 @@ sub insert_before {
 			prev => $node->{prev},
 			next => $node,
 		};
-		$node->{prev}{next} = $new_node if $node->{prev};
+		$node->{prev}{next} = $new_node if defined $node->{prev};
 		$node->{prev} = $new_node;
 
-		$self->{head} = $node->{next} if $self->{head} and $self->{head} == $node;
+		$self->{head} = $node->{next} if defined $self->{head} and $self->{head} == $node;
 	}
 	return;
 }
@@ -126,10 +127,10 @@ sub insert_after {
 			prev => $node,
 			next => $node->{next},
 		};
-		$node->{next}{prev} = $new_node if $node->{next};
+		$node->{next}{prev} = $new_node if defined $node->{next};
 		$node->{next} = $new_node;
 
-		$self->{tail} = $new_node if $self->{tail} and $self->{tail} == $node;
+		$self->{tail} = $new_node if defined $self->{tail} and $self->{tail} == $node;
 		$node = $new_node;
 	}
 	return;
@@ -138,11 +139,11 @@ sub insert_after {
 sub erase {
 	my ($self, $node) = @_;
 
-	$node->{prev}{next} = $node->{next} if $node->{prev};
-	$node->{next}{prev} = $node->{prev} if $node->{next};
+	$node->{prev}{next} = $node->{next} if defined $node->{prev};
+	$node->{next}{prev} = $node->{prev} if defined $node->{next};
 
-	$self->{head} = $node->{next}     if $self->{head} and $self->{head} == $node;
-	$self->{tail} = $node->{previous} if $self->{tail} and $self->{tail} == $node;
+	$self->{head} = $node->{next}     if defined $self->{head} and $self->{head} == $node;
+	$self->{tail} = $node->{previous} if defined $self->{tail} and $self->{tail} == $node;
 
 	weaken $node;
 	carp 'Node may be leaking' if $node;
