@@ -1,4 +1,5 @@
 {{$NEXT}}
+          - Fix end method to return a valid value
 
 0.003     2011-01-25 15:38:59 Europe/Amsterdam
           Made size() O(1) instead of O(N)

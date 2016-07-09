@@ -166,7 +166,7 @@ sub end {
 	my $self = CORE::shift;
 	require List::DoubleLinked::Iterator;
 
-	return List::DoubleLinked::Iterator->new($self->{tail});
+	return List::DoubleLinked::Iterator->new($self, $self->{tail})->next;
 }
 
 sub DESTROY {
