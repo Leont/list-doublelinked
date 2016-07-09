@@ -13,7 +13,6 @@ sub new {
 	my $self = bless {
 		head => undef,
 		tail => undef,
-		size => 0,
 	}, $class;
 	$self->push(@items);
 	return $self;
@@ -32,7 +31,6 @@ sub push {
 		$self->{tail}{next} = $new_tail if defined $self->{tail};
 		$self->{tail}       = $new_tail;
 		$self->{head}       = $new_tail if not defined $self->{head};
-		$self->{size}++;
 	}
 	return;
 }
@@ -43,7 +41,6 @@ sub pop {
 	return if not defined $ret;
 	$self->{tail} = $ret->{prev};
 	$self->{tail}{next} = undef if defined $self->{tail};
-	$self->{size}--;
 	return $ret->{item};
 }
 
@@ -58,7 +55,6 @@ sub unshift {
 		$self->{head}{prev} = $new_head if defined $self->{head};
 		$self->{head}       = $new_head;
 		$self->{tail}       = $new_head if not defined $self->{tail};
-		$self->{size}++;
 	}
 	return;
 }
@@ -69,7 +65,6 @@ sub shift {
 	return if not defined $ret;
 	$self->{head} = $ret->{next};
 	$self->{head}{prev} = undef if defined $self->{tail};
-	$self->{size}--;
 	return $ret->{item};
 }
 
@@ -94,12 +89,16 @@ sub back {
 
 sub empty {
 	my $self = CORE::shift;
-	return not $self->{size};
+	return not defined $self->{head};
 }
 
 sub size {
 	my $self = CORE::shift;
-	return $self->{size};
+	my $ret  = 0;
+	for (my $current = $self->{head} ; defined $current ; $current = $current->{next}) {
+		$ret++;
+	}
+	return $ret;
 }
 
 sub insert_before {
@@ -115,7 +114,6 @@ sub insert_before {
 		$node->{prev} = $new_node;
 
 		$self->{head} = $node->{next} if defined $self->{head} and $self->{head} == $node;
-		$self->{size}++;
 	}
 	return;
 }
@@ -134,7 +132,6 @@ sub insert_after {
 
 		$self->{tail} = $new_node if defined $self->{tail} and $self->{tail} == $node;
 		$node = $new_node;
-		$self->{size}++;
 	}
 	return;
 }
@@ -151,7 +148,6 @@ sub erase {
 	$self->{head} = $node->{next}     if defined $self->{head} and $self->{head} == $node;
 	$self->{tail} = $node->{previous} if defined $self->{tail} and $self->{tail} == $node;
 
-	$self->{size}--;
 	weaken $node;
 	carp 'Node may be leaking' if $node;
 
@@ -178,9 +174,7 @@ sub DESTROY {
 	while ($current) {
 		delete $current->{prev};
 		$current = delete $current->{next};
-		$self->{size}--;
 	}
-	warn "Size of Linked List is $self->{size}, should be 0 after DESTROY" if $self->{size} != 0;
 	return;
 }
 
