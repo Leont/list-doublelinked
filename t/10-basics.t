@@ -3,7 +3,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 use Test::Differences;
 use Scalar::Util qw/weaken/;
 
@@ -50,7 +50,7 @@ eq_or_diff([ $list->flatten ], [ qw/quz foo bar/ ], 'List is now: quz foo bar');
 
 	eq_or_diff([ $list->flatten ], [ qw/quz FOO BAR foo bar/ ], 'Inserted: FOO BAR');
 
-	is $iter->previous->remove(), 'BAR', 'Removed "BAR"';
+	cmp_ok $list->erase($iter->previous), '==', $iter, 'Removed "BAR"';
 
 	eq_or_diff([ $list->flatten ], [ qw/quz FOO foo bar/ ], '"BAR" is really gone');
 
@@ -60,6 +60,16 @@ eq_or_diff([ $list->flatten ], [ qw/quz foo bar/ ], 'List is now: quz foo bar');
 
 	is $list->back, 'bar', 'back is "bar"';
 
+}
+
+{
+	alarm 1;
+
+	my @values;
+	for (my $current = $list->begin; $current != $list->end; $current = $current->next) {
+		push @values, $current->get;
+	}
+	eq_or_diff(\@values, [ qw/quz FOO foo BUZ QUZ bar/ ], 'Got right values when iterating list');
 }
 
 my $ref = [];
