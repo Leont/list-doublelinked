@@ -140,7 +140,10 @@ sub insert_after {
 }
 
 sub erase {
-	my ($self, $node) = @_;
+	my ($self, $iter) = @_;
+
+	my $ret = $iter->next;
+	my $node = $iter->[0];
 
 	$node->{prev}{next} = $node->{next} if defined $node->{prev};
 	$node->{next}{prev} = $node->{prev} if defined $node->{next};
@@ -152,7 +155,7 @@ sub erase {
 	weaken $node;
 	carp 'Node may be leaking' if $node;
 
-	return;
+	return $ret;
 }
 
 sub begin {
@@ -252,7 +255,7 @@ Return the length of the list. This runs in linear time.
 
 =method erase($iterator)
 
-Remove the element under $iterator.
+Remove the element under $iterator. Note that this invalidates C<$iterator>, therefore it returns the next iterator.
 
 =method insert_before($iterator, @elements)
 

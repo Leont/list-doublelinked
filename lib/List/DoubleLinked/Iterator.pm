@@ -58,7 +58,7 @@ sub remove {
 
 	my $item = $node->{item};
 	weaken $node;
-	$list->erase($node);
+	$list->erase($self);
 
 	return $item;
 }

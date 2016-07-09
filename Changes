@@ -1,6 +1,7 @@
 {{$NEXT}}
           - Add compare overload
           - Fix end method to return a valid value
+          - Fix erase to actually be usable
 
 0.003     2011-01-25 15:38:59 Europe/Amsterdam
           Made size() O(1) instead of O(N)
