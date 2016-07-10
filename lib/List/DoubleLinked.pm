@@ -13,7 +13,11 @@ sub new {
 	my $self = bless {
 		head => undef,
 		tail => undef,
+		head => { prev => undef },
+		tail => { tail => undef },
 	}, $class;
+	$self->{head}{next} = $self->{tail};
+	$self->{tail}{prev} = $self->{head};
 	$self->push(@items);
 	return $self;
 }
@@ -25,22 +29,22 @@ sub push {
 	for my $item (@items) {
 		my $new_tail = {
 			item => $item,
-			prev => $self->{tail},
-			next => undef,
+			prev => $self->{tail}{prev},
+			next => $self->{tail},
 		};
-		$self->{tail}{next} = $new_tail if defined $self->{tail};
-		$self->{tail}       = $new_tail;
-		$self->{head}       = $new_tail if not defined $self->{head};
+		$self->{tail}{prev}{next} = $new_tail;
+		$self->{tail}{prev} = $new_tail;
+		$self->{head}{next} = $new_tail if $self->{head}{next} == $self->{tail};
 	}
 	return;
 }
 
 sub pop {
 	my $self = shift;
-	my $ret  = $self->{tail};
+	my $ret  = $self->{tail}{prev};
 	return if not defined $ret;
-	$self->{tail} = $ret->{prev};
-	$self->{tail}{next} = undef if defined $self->{tail};
+	$self->{tail}{prev} = $ret->{prev};
+	$ret->{prev}{next} = $self->{tail};
 	return $ret->{item};
 }
 
@@ -49,29 +53,27 @@ sub unshift {
 	for my $item (reverse @items) {
 		my $new_head = {
 			item => $item,
-			prev => undef,
-			next => $self->{head},
+			prev => $self->{head},
+			next => $self->{head}{next},
 		};
-		$self->{head}{prev} = $new_head if defined $self->{head};
-		$self->{head}       = $new_head;
-		$self->{tail}       = $new_head if not defined $self->{tail};
+		$self->{head}{next}{prev} = $new_head;
+		$self->{head}{next} = $new_head;
 	}
 	return;
 }
 
 sub shift {
 	my $self = CORE::shift;
-	my $ret  = $self->{head};
+	my $ret  = $self->{head}{next};
 	return if not defined $ret;
-	$self->{head} = $ret->{next};
-	$self->{head}{prev} = undef if defined $self->{tail};
+	$self->{head}{next} = $ret->{next};
 	return $ret->{item};
 }
 
 sub flatten {
 	my $self = CORE::shift;
 	my @ret;
-	for (my $current = $self->{head} ; defined $current ; $current = $current->{next}) {
+	for (my $current = $self->{head}{next} ; $current != $self->{tail}; $current = $current->{next}) {
 		CORE::push @ret, $current->{item};
 	}
 	return @ret;
@@ -79,23 +81,23 @@ sub flatten {
 
 sub front {
 	my $self = CORE::shift;
-	return defined $self->{head} ? $self->{head}{item} : undef;
+	return $self->{head}{next}{item};
 }
 
 sub back {
 	my $self = CORE::shift;
-	return defined $self->{tail} ? $self->{tail}{item} : undef;
+	return $self->{tail}{prev}{item};
 }
 
 sub empty {
 	my $self = CORE::shift;
-	return not defined $self->{head};
+	return $self->{head}{next} == $self->{tail}
 }
 
 sub size {
 	my $self = CORE::shift;
 	my $ret  = 0;
-	for (my $current = $self->{head} ; defined $current ; $current = $current->{next}) {
+	for (my $current = $self->{head}{next} ; $current != $self->{tail}; $current = $current->{next}) {
 		$ret++;
 	}
 	return $ret;
@@ -104,16 +106,16 @@ sub size {
 sub insert_before {
 	my ($self, $iter, @items) = @_;
 	my $node = $iter->[0];
-	for my $item (@items) {
+	for my $item (reverse @items) {
 		my $new_node = {
 			item => $item,
 			prev => $node->{prev},
 			next => $node,
 		};
-		$node->{prev}{next} = $new_node if defined $node->{prev};
+		$node->{prev}{next} = $new_node;
 		$node->{prev} = $new_node;
 
-		$self->{head} = $node->{next} if defined $self->{head} and $self->{head} == $node;
+		$node = $new_node;
 	}
 	return;
 }
@@ -127,10 +129,9 @@ sub insert_after {
 			prev => $node,
 			next => $node->{next},
 		};
-		$node->{next}{prev} = $new_node if defined $node->{next};
+		$node->{next}{prev} = $new_node;
 		$node->{next} = $new_node;
 
-		$self->{tail} = $new_node if defined $self->{tail} and $self->{tail} == $node;
 		$node = $new_node;
 	}
 	return;
@@ -142,11 +143,8 @@ sub erase {
 	my $ret = $iter->next;
 	my $node = $iter->[0];
 
-	$node->{prev}{next} = $node->{next} if defined $node->{prev};
-	$node->{next}{prev} = $node->{prev} if defined $node->{next};
-
-	$self->{head} = $node->{next}     if defined $self->{head} and $self->{head} == $node;
-	$self->{tail} = $node->{previous} if defined $self->{tail} and $self->{tail} == $node;
+	$node->{prev}{next} = $node->{next};
+	$node->{next}{prev} = $node->{prev};
 
 	weaken $node;
 	carp 'Node may be leaking' if $node;
@@ -158,14 +156,14 @@ sub begin {
 	my $self = CORE::shift;
 	require List::DoubleLinked::Iterator;
 
-	return List::DoubleLinked::Iterator->new($self, $self->{head});
+	return List::DoubleLinked::Iterator->new($self, $self->{head}{next});
 }
 
 sub end {
 	my $self = CORE::shift;
 	require List::DoubleLinked::Iterator;
 
-	return List::DoubleLinked::Iterator->new($self, $self->{tail})->next;
+	return List::DoubleLinked::Iterator->new($self, $self->{tail});
 }
 
 sub DESTROY {

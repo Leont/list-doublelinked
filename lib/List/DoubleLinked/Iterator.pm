@@ -10,13 +10,10 @@ use namespace::clean 0.20;
 use overload 
 	'==' => sub {
 		my ($left, $right, $switch) = @_;
-		return 1 if not defined $left->[0] && not defined $right->[0];
 		return $left->[0] == $right->[0];
 	},
 	'!=' => sub {
 		my ($left, $right, $switch) = @_;
-		return 0 if not defined $left->[0] && not defined $right->[0];
-		return 1 if defined($left->[0]) != defined($right->[0]);
 		return $left->[0] != $right->[0];
 	},
 	fallback => 1;
