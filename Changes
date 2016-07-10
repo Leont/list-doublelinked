@@ -1,4 +1,5 @@
 {{$NEXT}}
+          - Made a much better split between list and iterator capabilities
           - Add compare overload
           - Fix end method to return a valid value
           - Fix erase to actually be usable

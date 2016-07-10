@@ -103,40 +103,6 @@ sub size {
 	return $ret;
 }
 
-sub insert_before {
-	my ($self, $iter, @items) = @_;
-	my $node = $iter->[0];
-	for my $item (reverse @items) {
-		my $new_node = {
-			item => $item,
-			prev => $node->{prev},
-			next => $node,
-		};
-		$node->{prev}{next} = $new_node;
-		$node->{prev} = $new_node;
-
-		$node = $new_node;
-	}
-	return;
-}
-
-sub insert_after {
-	my ($self, $iter, @items) = @_;
-	my $node = $iter->[0];
-	for my $item (@items) {
-		my $new_node = {
-			item => $item,
-			prev => $node,
-			next => $node->{next},
-		};
-		$node->{next}{prev} = $new_node;
-		$node->{next} = $new_node;
-
-		$node = $new_node;
-	}
-	return;
-}
-
 sub erase {
 	my ($self, $iter) = @_;
 
@@ -156,14 +122,14 @@ sub begin {
 	my $self = CORE::shift;
 	require List::DoubleLinked::Iterator;
 
-	return List::DoubleLinked::Iterator->new($self, $self->{head}{next});
+	return List::DoubleLinked::Iterator->new($self->{head}{next});
 }
 
 sub end {
 	my $self = CORE::shift;
 	require List::DoubleLinked::Iterator;
 
-	return List::DoubleLinked::Iterator->new($self, $self->{tail});
+	return List::DoubleLinked::Iterator->new($self->{tail});
 }
 
 sub DESTROY {
@@ -185,7 +151,7 @@ sub DESTROY {
  use List::DoubleLinked;
  my $list = List::DoubleLinked->new(qw/foo bar baz/);
  $list->begin->insert_after(qw/quz/);
- $list->end->previous->erase;
+ $list->erase($list->end->previous);
 
 =head1 DESCRIPTION
 
@@ -248,12 +214,4 @@ Return the length of the list. This runs in linear time.
 =method erase($iterator)
 
 Remove the element under $iterator. Note that this invalidates C<$iterator>, therefore it returns the next iterator.
-
-=method insert_before($iterator, @elements)
-
-Insert @elements before $iterator.
-
-=method insert_after($iterator, @elements)
-
-Insert @elements after $iterator.
 
