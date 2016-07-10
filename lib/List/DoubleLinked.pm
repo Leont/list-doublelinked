@@ -160,9 +160,9 @@ This module provides a double linked list for Perl. You should ordinarily use ar
 
 =head1 WTF WHERE YOU THINKING?
 
-This module is a bit an exercise in C programming. I was surprised that I was ever going to need this (and even more surprised no one ever uploaded something like this to CPAN before), but I do. B<I need a data structure that provided me with stable iterators>. I need to be able to splice off any arbitrary element without affecting any other arbitrary element. You can't really implement that using arrays, you need a double linked list for that.
+This module is a rather an exercise in C programming. I was surprised that I was ever going to need this (and even more surprised no one ever uploaded something like this to CPAN before), but B<I needed a data structure that provided me with stable iterators>. I need to be able to splice off any arbitrary element without affecting any other arbitrary element. You can't really implement that using arrays, you need a double linked list for that.
 
-This module is optimized for correctness, both algorithmically as memory wise. It is not optimized for speed. Linked lists in Perl are practically never faster than arrays anyways, so if you're looking at this because you think it will be faster think again. L<splice|perlfunc/"splice"> is your friend.
+This module is aiming for correctness, it is not optimized for speed. Linked lists in Perl are practically never faster than arrays anyways, if you're looking at this because you think it will be faster please think again. L<splice|perlfunc/"splice"> is your friend.
 
 =method new(@elements)
 
