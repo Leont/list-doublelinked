@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.004     2016-07-10 14:15:35+02:00 Europe/Amsterdam
           - Made a much better split between list and iterator capabilities
           - Add compare overload
           - Fix end method to return a valid value
