@@ -3,7 +3,7 @@ package List::DoubleLinked;
 use strict;
 use warnings FATAL => 'all';
 
-use Carp qw/carp/;
+use Carp qw/carp croak/;
 use Scalar::Util 'weaken';
 use namespace::clean 0.20;
 #no autovivication;
@@ -41,8 +41,8 @@ sub push {
 
 sub pop {
 	my $self = shift;
+	croak 'No items to pop from the list' if $self->{tail}{prev} == $self->{head};
 	my $ret  = $self->{tail}{prev};
-	return if not defined $ret;
 	$self->{tail}{prev} = $ret->{prev};
 	$ret->{prev}{next} = $self->{tail};
 	return $ret->{item};
@@ -64,9 +64,10 @@ sub unshift {
 
 sub shift {
 	my $self = CORE::shift;
+	croak 'No items to shift from the list' if $self->{head}{next} == $self->{tail};
 	my $ret  = $self->{head}{next};
-	return if not defined $ret;
 	$self->{head}{next} = $ret->{next};
+	$ret->{next}{prev} = $$self->{head};
 	return $ret->{item};
 }
 
