@@ -3,7 +3,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 20;
+use Test::More tests => 21;
 use Test::Differences;
 use Scalar::Util qw/weaken/;
 
@@ -78,3 +78,7 @@ weaken $ref;
 undef $list;
 ok !defined $ref, '$ref should no longer be defined';
 
+$list = List::DoubleLinked->new(qw/foo bar baz/);
+
+$list->shift();
+eq_or_diff([ $list->flatten ], [ qw/bar baz/ ], 'List is now: bar baz');

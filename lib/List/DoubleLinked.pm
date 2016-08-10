@@ -67,7 +67,7 @@ sub shift {
 	croak 'No items to shift from the list' if $self->{head}{next} == $self->{tail};
 	my $ret  = $self->{head}{next};
 	$self->{head}{next} = $ret->{next};
-	$ret->{next}{prev} = $$self->{head};
+	$ret->{next}{prev} = $self->{head};
 	return $ret->{item};
 }
 
