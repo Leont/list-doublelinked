@@ -3,9 +3,8 @@ package List::DoubleLinked::Iterator;
 use strict;
 use warnings FATAL => 'all';
 
-use Carp qw/croak/;
-use Scalar::Util 'weaken';
-use namespace::clean 0.20;
+use Carp qw//;
+use Scalar::Util qw//;
 
 use overload 
 	'==' => sub {
@@ -21,7 +20,7 @@ use overload
 sub new {
 	my ($class, $node) = @_;
 	my $self = bless [ $node ], $class;
-	weaken $self->[0];
+	Scalar::Util::weaken($self->[0]);
 	Internals::SvREADONLY(@{$self}, 1);
 	return $self;
 }
@@ -37,14 +36,14 @@ sub get {
 sub next {
 	my $self = shift;
 	my $node  = $self->[0];
-	croak 'Node no longer exists' if not defined $node;
+	Carp::croak('Node no longer exists') if not defined $node;
 	return __PACKAGE__->new($node->{next});
 }
 
 sub previous {
 	my $self = shift;
 	my $node  = $self->[0];
-	croak 'Node no longer exists' if not defined $node;
+	Carp::croak('Node no longer exists') if not defined $node;
 	return __PACKAGE__->new($node->{prev});
 }
 

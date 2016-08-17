@@ -3,10 +3,8 @@ package List::DoubleLinked;
 use strict;
 use warnings FATAL => 'all';
 
-use Carp qw/carp croak/;
-use Scalar::Util 'weaken';
-use namespace::clean 0.20;
-#no autovivication;
+use Carp qw//;
+use Scalar::Util qw//;
 
 sub new {
 	my ($class, @items) = @_;
@@ -41,7 +39,7 @@ sub push {
 
 sub pop {
 	my $self = shift;
-	croak 'No items to pop from the list' if $self->{tail}{prev} == $self->{head};
+	Carp::croak('No items to pop from the list') if $self->{tail}{prev} == $self->{head};
 	my $ret  = $self->{tail}{prev};
 	$self->{tail}{prev} = $ret->{prev};
 	$ret->{prev}{next} = $self->{tail};
@@ -64,7 +62,7 @@ sub unshift {
 
 sub shift {
 	my $self = CORE::shift;
-	croak 'No items to shift from the list' if $self->{head}{next} == $self->{tail};
+	Carp::croak('No items to shift from the list') if $self->{head}{next} == $self->{tail};
 	my $ret  = $self->{head}{next};
 	$self->{head}{next} = $ret->{next};
 	$ret->{next}{prev} = $self->{head};
@@ -113,8 +111,8 @@ sub erase {
 	$node->{prev}{next} = $node->{next};
 	$node->{next}{prev} = $node->{prev};
 
-	weaken $node;
-	carp 'Node may be leaking' if $node;
+	Scalar::Util::weaken($node);
+	Carp::carp('Node may be leaking') if $node;
 
 	return $ret;
 }
